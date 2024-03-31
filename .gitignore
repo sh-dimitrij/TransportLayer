@@ -1,0 +1,5 @@
+.DS_Stroe
+/.venv
+db.sqlite3
+__pycache__
+django.log
