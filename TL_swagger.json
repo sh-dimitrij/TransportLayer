@@ -1,0 +1,146 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "TransportLayer application",
+        "title": "Transport level API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/",
+    "paths": {
+        "/send": {
+            "post": {
+                "description": "Отправка сообщения сегментами на канальный уровень",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transport"
+                ],
+                "summary": "Отправка сообщения сегментами",
+                "parameters": [
+                    {
+                        "description": "Сообщение для отправки",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TransportMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешная отправка",
+                        "schema": {
+                            "$ref": "#/definitions/TransportResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/TransportResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/TransportResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/transfer": {
+            "post": {
+                "description": "Передача собранных сообщений на прикладной уровень",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transport"
+                ],
+                "summary": "Передача сообщения на прикладной уровень",
+                "parameters": [
+                    {
+                        "description": "Сообщение для передачи",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TransportMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Успешная передача",
+                        "schema": {
+                            "$ref": "#/definitions/TransportResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/TransportResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/TransportResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "TransportMessage": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "segments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Segment"
+                    }
+                }
+            }
+        },
+        "Segment": {
+            "type": "object",
+            "properties": {
+                "messageId": {
+                    "type": "string"
+                },
+                "totalLength": {
+                    "type": "integer"
+                },
+                "segmentIndex": {
+                    "type": "integer"
+                },
+                "payload": {
+                    "type": "string"
+                }
+            }
+        },
+        "TransportResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
