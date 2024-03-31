@@ -9,7 +9,7 @@
     "host": "localhost:3000",
     "basePath": "/",
     "paths": {
-        "/send": {
+        "/send-message": {
             "post": {
                 "description": "Отправка сообщения сегментами на канальный уровень",
                 "consumes": [
