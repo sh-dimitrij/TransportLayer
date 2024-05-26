@@ -1,0 +1,123 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Транспортный уровень",
+    "description": "Swagger для транпортного уровня",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:8000"
+    }
+  ],
+  "tags": [
+    {
+      "name": "encoded-message"
+    },
+    {
+      "name": "message"
+    }
+  ],
+  "paths": {
+    "/encoded-message/transfer/": {
+      "post": {
+        "tags": [
+          "encoded-message"
+        ],
+        "summary": "Принимает часть сообщения от сервиса кодирования",
+        "parameters": [
+          {
+            "name": "sender",
+            "in": "query",
+            "description": "ID отправителя сообщения",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "timestamp",
+            "in": "query",
+            "description": "Время отправления",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "part_message_id",
+            "in": "query",
+            "description": "ID части сообщения",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "message",
+            "in": "query",
+            "description": "Часть сообщения",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "flag_error",
+            "in": "query",
+            "description": "Признак ошибки",
+            "schema": {
+              "type": "bool"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Ошибка в запросе"
+          }
+        }
+      }
+    },
+    "/message/send/": {
+      "post": {
+        "tags": [
+          "message"
+        ],
+        "summary": "Принимает сообщение от веб-сокет сервера",
+        "parameters": [
+          {
+            "name": "sender",
+            "in": "query",
+            "description": "ID отправителя сообщения",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timestamp",
+            "in": "query",
+            "description": "Время отправления",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "message",
+            "in": "query",
+            "description": "Cообщение",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Ошибка в запросе"
+          }
+        }
+      }
+    }
+  }
+}
