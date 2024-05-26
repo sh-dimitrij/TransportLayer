@@ -98,7 +98,7 @@ class KafkaMessageConsumer(threading.Thread):
                     if prev_id != 0 or message['had_error']:
                         had_error = True
                     prev_timestamp = message['timestamp']
-                    curr_message = list(eval(message['message']))
+                    curr_message = list(message['message'])
                     curr_sender = message['sender']
 
             if prev_timestamp is not None:
@@ -108,7 +108,7 @@ class KafkaMessageConsumer(threading.Thread):
                     {
                         "sender": curr_sender,
                         "timestamp": prev_timestamp,
-                        "message": bytes(curr_message).decode("utf-8"),
+                        "message": curr_message,
                         "had_error": had_error,
                     }
                 )

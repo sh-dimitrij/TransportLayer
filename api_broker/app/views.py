@@ -110,7 +110,7 @@ def send_message(request, format=None):
                     "sender": request_sender,
                     "timestamp": request_timestamp,
                     "segment_number": i,
-                    "message": str(bytes(batch)),
+                    "message": (bytes(batch)).decode(),
                 }
             )
     except Exception as e:
