@@ -97,7 +97,7 @@
             "in": "query",
             "description": "Время отправления",
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {

@@ -60,7 +60,7 @@ class RequestField(StrEnum):
             'message',
             openapi.IN_BODY,
             description="Сообщение",
-            type=openapi.TYPE_STRING
+            type=openapi.TYPE_INTEGER
         ),
     ],
     responses={
@@ -159,7 +159,7 @@ def send_message(request, format=None):
             'message',
             openapi.IN_BODY,
             description="Часть сообщения",
-            type=openapi.TYPE_STRING
+            type=openapi.TYPE_INTEGER
         ),
         openapi.Parameter(
             'total_segments',
