@@ -92,7 +92,7 @@ def send_message(request, format=None):
         )
 
     request_timestamp = data.get(RequestField.timestamp, "")
-    if not request_timestamp or not isinstance(request_timestamp, int):
+    if not request_timestamp or not isinstance(request_timestamp, str):
         err_mess = f"Ошибка в поле {RequestField.timestamp}"
         logger.error(err_mess)
         return Response(
