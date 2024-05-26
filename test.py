@@ -20,16 +20,16 @@ some_data_source = [
     {
         'sender': 'sender',
         'timestamp': 12412412,
-        'part_message_id': 2,
+        'segment_number': 2,
         "message": " маму",
-        "flag_error": True,
+        "had_error": True,
     },
     {
         'sender': 'sender',
         'timestamp': 12412412,
-        'part_message_id': 1,
+        'segment_number': 1,
         "message": "Я люблю",
-        "flag_error": False,
+        "had_error": False,
     }
 ]
 

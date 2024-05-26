@@ -31,7 +31,7 @@
             "in": "query",
             "description": "ID отправителя сообщения",
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
@@ -39,11 +39,11 @@
             "in": "query",
             "description": "Время отправления",
             "schema": {
-              "type": "integer"
+              "type": "string"
             }
           },
           {
-            "name": "part_message_id",
+            "name": "segment_number",
             "in": "query",
             "description": "ID части сообщения",
             "schema": {
@@ -59,7 +59,7 @@
             }
           },
           {
-            "name": "flag_error",
+            "name": "had_error",
             "in": "query",
             "description": "Признак ошибки",
             "schema": {

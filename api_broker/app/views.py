@@ -17,7 +17,7 @@ from .producer_message import KafkaMessageProducer
 from .logger import Logger
 
 
-LEN_BYTES = 140
+LEN_BYTES = 100
 URL_CODING_SERVICE = "http://localhost:8082/code"
 HEADERS = {'Content-Type': 'application/json'}
 logger = Logger().get_logger(__name__)
@@ -36,9 +36,9 @@ class RequestField(StrEnum):
     sender = auto()
     timestamp = auto()
     message = auto()
-    part_message_id = auto()
-    flag_error = auto()
-    total = auto()
+    segment_number = auto()
+    had_error = auto()
+    total_segments = auto()
 
 
 @swagger_auto_schema(
@@ -54,13 +54,13 @@ class RequestField(StrEnum):
             'timestamp',
             openapi.IN_BODY,
             description="Время отправления",
-            type=openapi.TYPE_INTEGER
+            type=openapi.TYPE_STRING
         ),
         openapi.Parameter(
             'message',
             openapi.IN_BODY,
             description="Сообщение",
-            type=openapi.TYPE_INTEGER
+            type=openapi.TYPE_STRING
         ),
     ],
     responses={
@@ -109,7 +109,7 @@ def send_message(request, format=None):
                 {
                     "sender": request_sender,
                     "timestamp": request_timestamp,
-                    "part_message_id": i,
+                    "segment_number": i,
                     "message": str(bytes(batch)),
                 }
             )
@@ -117,10 +117,10 @@ def send_message(request, format=None):
         logger.error(f"Ошибка во время сегментации и декодирования: {e}")
         return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    total_len = len(result_dicts)
+    total_segments_len = len(result_dicts)
     for d in result_dicts:
         try:
-            d["total"] = total_len
+            d["total_segments"] = total_segments_len
             logger.info(f"Пробуем отправить {d} на {URL_CODING_SERVICE}")
             d_json = json.dumps(d)
             response = requests.post(URL_CODING_SERVICE, data=d_json, headers=HEADERS)
@@ -147,10 +147,10 @@ def send_message(request, format=None):
             'timestamp',
             openapi.IN_BODY,
             description="Время отправления",
-            type=openapi.TYPE_INTEGER
+            type=openapi.TYPE_STRING
         ),
         openapi.Parameter(
-            'part_message_id',
+            'segment_number',
             openapi.IN_BODY,
             description="ID части сообщения",
             type=openapi.TYPE_INTEGER
@@ -159,16 +159,16 @@ def send_message(request, format=None):
             'message',
             openapi.IN_BODY,
             description="Часть сообщения",
-            type=openapi.TYPE_INTEGER
+            type=openapi.TYPE_STRING
         ),
         openapi.Parameter(
-            'total',
+            'total_segments',
             openapi.IN_BODY,
             description="Количество сегментов",
             type=openapi.TYPE_INTEGER
         ),
         openapi.Parameter(
-            'flag_error',
+            'had_error',
             openapi.IN_QUERY,
             description="Признак ошибки",
             type=openapi.TYPE_BOOLEAN
@@ -212,27 +212,27 @@ def transfer_message(request, format=None):
                 data={"Ошибка": err_mess}
             )
 
-        request_part_message_id = data.get(RequestField.part_message_id, "")
-        if request_part_message_id == "" or not isinstance(request_part_message_id, int):
-            err_mess = f"Ошибка в поле {RequestField.part_message_id}"
+        request_segment_number = data.get(RequestField.segment_number, "")
+        if request_segment_number == "" or not isinstance(request_segment_number, int):
+            err_mess = f"Ошибка в поле {RequestField.segment_number}"
             logger.error(err_mess)
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
                 data={"Ошибка": err_mess}
             )
 
-        request_flag_error = data.get(RequestField.flag_error, "")
-        if request_flag_error == "" or not isinstance(request_flag_error, bool):
-            err_mess = f"Ошибка в поле {RequestField.flag_error}"
+        request_had_error = data.get(RequestField.had_error, "")
+        if request_had_error == "" or not isinstance(request_had_error, bool):
+            err_mess = f"Ошибка в поле {RequestField.had_error}"
             logger.error(err_mess)
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,
                 data={"Ошибка": err_mess}
             )
         
-        request_total = data.get(RequestField.total, "")
-        if request_total == "" or not isinstance(request_total, int):
-            err_mess = f"Ошибка в поле {RequestField.total}"
+        request_total_segments = data.get(RequestField.total_segments, "")
+        if request_total_segments == "" or not isinstance(request_total_segments, int):
+            err_mess = f"Ошибка в поле {RequestField.total_segments}"
             logger.error(err_mess)
             return Response(
                 status=status.HTTP_400_BAD_REQUEST,

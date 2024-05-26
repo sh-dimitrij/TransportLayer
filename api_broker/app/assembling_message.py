@@ -13,7 +13,7 @@ from .logger import Logger
 logger = Logger().get_logger(__name__)
 
 
-GET_MESSAGE_INTERVAL = 1
+GET_MESSAGE_INTERVAL = 3
 BOOTSTRAP_SERVER = 'localhost:29092'
 CONSUMER_TOPIC = "assembling_message_topic"
 GROUP_ID = "assembling_message_id"
@@ -63,7 +63,7 @@ class KafkaMessageConsumer(threading.Thread):
 
     def process_messages(self, messages): 
         try:
-            sorted_messages = sorted(messages, key=lambda x: (x['timestamp'], x['part_message_id']))
+            sorted_messages = sorted(messages, key=lambda x: (x['timestamp'], x['segment_number']))
             logger.info(f"Обработка {sorted_messages}")
             result_message = []
             
@@ -72,44 +72,44 @@ class KafkaMessageConsumer(threading.Thread):
             curr_message = []
 
             prev_id = None
-            flag_error = False
+            had_error = False
             
             for message in sorted_messages:
 
                 if prev_timestamp == message['timestamp']:
                     curr_message.extend(list(eval(message['message'])))
-                    if prev_id + 1 != message['part_message_id'] or message['flag_error']:
-                        flag_error = True
-                    prev_id = message['part_message_id']
+                    if prev_id + 1 != message['segment_number'] or message['had_error']:
+                        had_error = True
+                    prev_id = message['segment_number']
                 else:
                     if prev_timestamp is not None:
-                        if prev_id + 1 != message['total']:
-                            flag_error = True
+                        if prev_id + 1 != message['total_segments']:
+                            had_error = True
                         result_message.append(
                             {
                                 "sender": curr_sender,
                                 "timestamp": prev_timestamp,
                                 "message": bytes(curr_message).decode("utf-8"),
-                                "flag_error": flag_error,
+                                "had_error": had_error,
                             }
                         )
-                    flag_error = False
-                    prev_id = message['part_message_id']
-                    if prev_id != 0 or message['flag_error']:
-                        flag_error = True
+                    had_error = False
+                    prev_id = message['segment_number']
+                    if prev_id != 0 or message['had_error']:
+                        had_error = True
                     prev_timestamp = message['timestamp']
                     curr_message = list(eval(message['message']))
                     curr_sender = message['sender']
 
             if prev_timestamp is not None:
-                if prev_id + 1 != message['total']:
-                    flag_error = True
+                if prev_id + 1 != message['total_segments']:
+                    had_error = True
                 result_message.append(
                     {
                         "sender": curr_sender,
                         "timestamp": prev_timestamp,
                         "message": bytes(curr_message).decode("utf-8"),
-                        "flag_error": flag_error,
+                        "had_error": had_error,
                     }
                 )
 
