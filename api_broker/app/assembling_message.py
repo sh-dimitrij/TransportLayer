@@ -13,12 +13,17 @@ from .logger import Logger
 logger = Logger().get_logger(__name__)
 
 
-GET_MESSAGE_INTERVAL = 3
+GET_MESSAGE_INTERVAL = 1
 BOOTSTRAP_SERVER = 'localhost:29092'
 CONSUMER_TOPIC = "assembling_message_topic"
 GROUP_ID = "assembling_message_id"
 AUTO_OFFSET_RESET = 'earliest'
-URL_RECIVE ="http://localhost:8081/receive"
+# URL_RECIVE ="http://192.168.78.233:8081/receive"
+# URL_RECIVE ="http://172.16.88.124:8081/websockets"
+# URL_RECIVE ="http://172.16.88.124:5001/api/send-message"
+URL_RECIVE ="http://192.168.78.233:5001/api/send-message"
+# URL_RECIVE ="http://172.16.88.124:8081/receive"
+HEADERS = {'Content-Type': 'application/json'}
 
 
 class KafkaMessageConsumer(threading.Thread):
@@ -98,7 +103,7 @@ class KafkaMessageConsumer(threading.Thread):
                     if prev_id != 0 or message['had_error']:
                         had_error = True
                     prev_timestamp = message['timestamp']
-                    curr_message = list(message['message'])
+                    curr_message = list(eval(message['message']))
                     curr_sender = message['sender']
 
             if prev_timestamp is not None:
@@ -108,7 +113,7 @@ class KafkaMessageConsumer(threading.Thread):
                     {
                         "sender": curr_sender,
                         "timestamp": prev_timestamp,
-                        "message": curr_message,
+                        "message": bytes(curr_message).decode("utf-8"),
                         "had_error": had_error,
                     }
                 )
@@ -116,14 +121,18 @@ class KafkaMessageConsumer(threading.Thread):
             logger.info(f"Обработанные сообщения {result_message}")
 
             for mes in result_message:
+                if "had_error" not in mes:
+                    mes["had_error"] = True
                 logger.info(f"Пробуем отправить {mes}")
-                response = requests.post(URL_RECIVE, data=mes)
+                mes_json = json.dumps(mes)
+                response = requests.post(URL_RECIVE, data=mes_json, headers=HEADERS)
                 if response.status_code != 200:
                     logger.info(f"Получен статуc {response.status_code} от прикладного уровня")
+                # logger.info(f"Обработано {} сегментов")
                 logger.info("Сообщение успешно доставленно на прикладной уровень")
         except requests.exceptions.ConnectionError as e:
             pass
-            #logger.error(f"Не получилось отпправить сообщение {e}")
+            #logger.error(f"Не получилось отправить сообщение {e}")
         except Exception as e:
             logger.error(f"Ошибка обработки сообщений {e}")
 

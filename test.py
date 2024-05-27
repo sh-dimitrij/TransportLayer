@@ -19,17 +19,17 @@ def delivery_report(err, msg):
 some_data_source = [
     {
         'sender': 'sender',
-        'timestamp': 12412412,
+        'timestamp': "12412412",
         'part_message_id': 2,
         "message": " маму",
         "flag_error": True,
     },
     {
         'sender': 'sender',
-        'timestamp': 12412412,
+        'timestamp': "12412412",
         'part_message_id': 1,
         "message": "Я люблю",
-        "flag_error": False,zz
+        "flag_error": False,
     }
 ]
 

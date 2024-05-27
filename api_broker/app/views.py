@@ -17,10 +17,11 @@ from .producer_message import KafkaMessageProducer
 from .logger import Logger
 
 
-LEN_BYTES = 100
-URL_CODING_SERVICE = "http://localhost:8082/code"
+URL_CODING_SERVICE = "http://192.168.78.205:8082/code"
+# URL_CODING_SERVICE = "http://172.16.86.156:8082/code"
 HEADERS = {'Content-Type': 'application/json'}
 logger = Logger().get_logger(__name__)
+LEN_BYTES = 140
 
 
 def batched(iterable, n):
@@ -41,33 +42,6 @@ class RequestField(StrEnum):
     total_segments = auto()
 
 
-@swagger_auto_schema(
-    method='post',
-    manual_parameters=[
-        openapi.Parameter(
-            'sender',
-            openapi.IN_BODY,
-            description="login отправителя сообщения",
-            type=openapi.TYPE_STRING
-        ),
-        openapi.Parameter(
-            'timestamp',
-            openapi.IN_BODY,
-            description="Время отправления",
-            type=openapi.TYPE_STRING
-        ),
-        openapi.Parameter(
-            'message',
-            openapi.IN_BODY,
-            description="Сообщение",
-            type=openapi.TYPE_INTEGER
-        ),
-    ],
-    responses={
-        200: "Ок",
-        400: "Ошибка в запросе",
-    },
-)
 @api_view(['POST'])
 def send_message(request, format=None):
 
@@ -110,7 +84,10 @@ def send_message(request, format=None):
                     "sender": request_sender,
                     "timestamp": request_timestamp,
                     "segment_number": i,
-                    "message": (bytes(batch)).decode(),
+                    # "message": (bytes(batch)).decode(),
+                    "message": str(bytes(batch)),
+                    # task ->> 140 bytes
+                    # decoding _:   138  s  142
                 }
             )
     except Exception as e:
@@ -134,51 +111,7 @@ def send_message(request, format=None):
     return Response(status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(
-    method='post',
-    manual_parameters=[
-        openapi.Parameter(
-            'sender',
-            openapi.IN_BODY,
-            description="login отправителя сообщения",
-            type=openapi.TYPE_STRING
-        ),
-        openapi.Parameter(
-            'timestamp',
-            openapi.IN_BODY,
-            description="Время отправления",
-            type=openapi.TYPE_STRING
-        ),
-        openapi.Parameter(
-            'segment_number',
-            openapi.IN_BODY,
-            description="ID части сообщения",
-            type=openapi.TYPE_INTEGER
-        ),
-        openapi.Parameter(
-            'message',
-            openapi.IN_BODY,
-            description="Часть сообщения",
-            type=openapi.TYPE_INTEGER
-        ),
-        openapi.Parameter(
-            'total_segments',
-            openapi.IN_BODY,
-            description="Количество сегментов",
-            type=openapi.TYPE_INTEGER
-        ),
-        openapi.Parameter(
-            'had_error',
-            openapi.IN_QUERY,
-            description="Признак ошибки",
-            type=openapi.TYPE_BOOLEAN
-        ),
-    ],
-    responses={
-        200: "Ок",
-        400: "Ошибка в запросе",
-    },
-)
+
 @api_view(['POST'])
 def transfer_message(request, format=None):
     try:
